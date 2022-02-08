@@ -1,0 +1,35 @@
+steps:
+- name: golang
+  id: build
+  entrypoint: /bin/bash
+  args:
+  - -c
+  - make
+- name: gcr.io/cloud-builders/docker
+  id: containerize
+  args:
+  - build
+  - -t
+  - ${_ARTIFACT_REPO_URL}/go-sample-service:$SHORT_SHA
+  - .
+- name: gcr.io/cloud-builders/docker
+  id: push
+  args:
+  - push
+  - ${_ARTIFACT_REPO_URL}/go-sample-service:$SHORT_SHA
+- name: gcr.io/google.com/cloudsdktool/cloud-sdk
+  id: release
+  entrypoint: gcloud
+  args:
+  - deploy
+  - releases
+  - create
+  - go-sample-service-$SHORT_SHA
+  - --region=europe-west1
+  - --delivery-pipeline=go-sample-service
+  - --annotations=commitId=$COMMIT_SHA,branch=$BRANCH_NAME,repo=$REPO_NAME
+  - --images=go-sample-service=${_ARTIFACT_REPO_URL}/go-sample-service:$SHORT_SHA
+options:
+  workerPool:
+    ${_BUILD_WORKER_POOL}
+  logging: CLOUD_LOGGING_ONLY

@@ -1,5 +1,5 @@
 data "google_compute_image" "centos8" {
-  family  = "centos-8"
+  family  = "centos-stream-8"
   project = "centos-cloud"
 }
 

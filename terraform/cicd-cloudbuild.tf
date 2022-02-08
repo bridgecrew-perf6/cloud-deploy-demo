@@ -56,4 +56,8 @@ resource "google_cloudbuild_trigger" "go-sample-service-main" {
   }
   filename        = "cloudbuild.yaml"
   service_account = google_service_account.build.id
+  substitutions = {
+    _ARTIFACT_REPO_URL = "${google_artifact_registry_repository.golang.location}-docker.pkg.dev/${google_artifact_registry_repository.golang.project}/${google_artifact_registry_repository.golang.name}"
+    _BUILD_WORKER_POOL = google_cloudbuild_worker_pool.clouddeploy.id
+  }
 }

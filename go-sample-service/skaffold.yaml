@@ -1,0 +1,24 @@
+apiVersion: skaffold/v2beta16
+kind: Config
+profiles:
+  - name: dev
+    patches:
+      - op: add
+        path: /deploy/kustomize/paths
+        value:
+          - k8s/dev
+  - name: stage
+    patches:
+      - op: add
+        path: /deploy/kustomize/paths
+        value:
+          - k8s/stage
+  - name: prod
+    patches:
+      - op: add
+        path: /deploy/kustomize/paths
+        value:
+          - k8s/prod
+deploy:
+  kustomize:
+    defaultNamespace: golang
