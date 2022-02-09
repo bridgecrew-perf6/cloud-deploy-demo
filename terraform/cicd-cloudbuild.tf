@@ -61,3 +61,17 @@ resource "google_cloudbuild_trigger" "go-sample-service-main" {
     _BUILD_WORKER_POOL = google_cloudbuild_worker_pool.clouddeploy.id
   }
 }
+
+resource "google_cloudbuild_trigger" "go-sample-service-tag" {
+  project = var.cicd_project_id
+  name    = "go-sample-service-tag"
+  trigger_template {
+    tag_name = "v.+"
+    repo_name   = google_sourcerepo_repository.go-sample-service.name
+  }
+  filename        = "cloudbuild-promote.yaml"
+  service_account = google_service_account.build.id
+  substitutions = {
+    _BUILD_WORKER_POOL = google_cloudbuild_worker_pool.clouddeploy.id
+  }
+}

@@ -1,0 +1,26 @@
+steps:
+- name: gcr.io/google.com/cloudsdktool/cloud-sdk
+  id: release-find
+  entrypoint: bash
+  args:
+  - -c
+  - 'gcloud deploy releases list --delivery-pipeline=go-sample-service --region=europe-west1 --project=$PROJECT_ID --filter="annotations.commitId=$COMMIT_SHA" --format="value(name)" > release.txt'
+- name: gcr.io/google.com/cloudsdktool/cloud-sdk
+  id: release-promote
+  entrypoint: bash
+  args:
+  - '-eEuo'
+  - 'pipefail'
+  - '-c'
+  - |-
+    RELEASE_ID=`cat release.txt`
+    if [[ $$RELEASE_ID != "" ]]; then
+      gcloud deploy releases promote --release=$$RELEASE_ID --delivery-pipeline=go-sample-service --region=europe-west1 --project=$PROJECT_ID --to-target=stage --annotations=tag=$TAG_NAME -q
+    else
+      echo "Release with commit $COMMIT_SHA annotation was not found!"
+      exit 1
+    fi
+options:
+  workerPool:
+    ${_BUILD_WORKER_POOL}
+  logging: CLOUD_LOGGING_ONLY
